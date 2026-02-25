@@ -18,59 +18,98 @@
         pkgs = nixpkgs.legacyPackages.${system};
         tex = pkgs.texlive.combine {
           inherit (pkgs.texlive)
+            # Core
             scheme-basic
             latexmk
+
+            # Fonts
             collection-fontsrecommended
-            geometry
             xcharter
+            mlmodern
+
+            # Layout
+            geometry
+            setspace
+            titlesec
+            tocloft
+            enumitem
+
+            # Math
+            amsmath
+            mathtools
+
+            # Graphics
+            graphics
+            caption
+            float
+            booktabs
+
+            # Algorithms
+            algorithms
+            algorithmicx
+            algpseudocodex
+
+            # References
+            cite
+            bibtex
+            csquotes
+
+            # Links
+            hyperref
+
+            # Utilities
             xstring
             xkeyval
             mweights
             fontaxes
-            enumitem
+            microtype
             ;
         };
-        buildTex = src: 
-            pkgs.stdenvNoCC.mkDerivation {
-              name = "${src}-tex-document";
-              inherit src;
+        buildTex =
+          src:
+          pkgs.stdenvNoCC.mkDerivation {
+            name = "${src}-tex-document";
+            inherit src;
 
-              buildInputs = with pkgs; [
-                coreutils
-                tex
-              ];
+            buildInputs = with pkgs; [
+              coreutils
+              tex
+            ];
 
-              phases = [
-                "unpackPhase"
-                "buildPhase"
-                "installPhase"
-              ];
+            phases = [
+              "unpackPhase"
+              "buildPhase"
+              "installPhase"
+            ];
 
-              buildPhase = ''
-                runHook preBuild
-                latexmk -interaction=nonstopmode -pdf main.tex
-                runHook postBuild
-              '';
+            buildPhase = ''
+              runHook preBuild
 
-              installPhase = ''
-                runHook preInstall
-                mkdir -p $out
-                mkdir -p $out/src
-                cp main.pdf $out/
-                cp -r . $out/src
-                runHook postInstall
-              '';
-        };
+              latexmk -C
+              latexmk -interaction=nonstopmode -pdf -bibtex main.tex
+
+              runHook postBuild
+            '';
+
+            installPhase = ''
+              runHook preInstall
+
+              mkdir -p $out/${src}
+              cp -r . $out/${src}
+
+              runHook postInstall
+            '';
+          };
       in
       {
         formatter = pkgs.nixfmt-tree;
 
         packages = {
-          spec = buildTex ./spec;
+          template = buildTex ./template;
         };
 
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [ ];
+          buildInputs = [ tex ];
         };
       }
     );
