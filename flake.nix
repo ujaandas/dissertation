@@ -106,6 +106,7 @@
 
         packages = {
           template = buildTex ./template;
+          proposal = buildTex ./proposal;
         };
 
         devShells.default = pkgs.mkShell {
