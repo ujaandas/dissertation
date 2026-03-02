@@ -108,7 +108,7 @@
         packages = {
           template = buildTex ./template;
           proposal = buildTex ./proposal;
-          ieee = buildTex ./ieeetran;
+          ieee = buildTex ./ieee;
         };
 
         devShells.default = pkgs.mkShell {
