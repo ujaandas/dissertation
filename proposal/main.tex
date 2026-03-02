@@ -1,4 +1,4 @@
-\documentclass[12pt,a4paper]{report}
+\documentclass[conference]{styles/IEEEtran}
 
 % Preamble 
 \input{preamble}
@@ -11,9 +11,9 @@
 \input{frontmatter/title}
 \input{frontmatter/abstract}
 
-\tableofcontents
-\listoffigures
-\listoftables
+% \tableofcontents
+% \listoffigures
+% \listoftables
 
 \clearpage
 \pagenumbering{arabic}
@@ -23,11 +23,12 @@
 \include{chapters/methodology}
 
 % Bibliography
-\bibliographystyle{plain}
+\bibliographystyle{styles/IEEEtran}
 \bibliography{references}
 
 % Appendices
-\appendix
-\include{appendices/appendixA}
+% \clearpage
+% \appendix
+% \include{appendices/appendixA}
 
 \end{document}
