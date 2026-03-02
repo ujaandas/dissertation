@@ -59,6 +59,7 @@
 
             # Utilities
             xstring
+            xcolor
             xkeyval
             mweights
             fontaxes
