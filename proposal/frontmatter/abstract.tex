@@ -1,13 +1,32 @@
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
 
-This dissertation investigates ...
+Large Language Models (LLMs) are being increasingly deployed to safety-critical
+and enterprise domains to generated structured data, yet they natively struggle
+to adhere to complex, context-sensitive operational semantics. While existing
+constrained decoding techniques successfully enforce context-free grammars using
+Finite State Machines, they fail to guarantee richly typed semantic invariants
+without incurring some large or otherwise prohibitive inference latencies. To bridge this
+gap between probabilistic generation and strict formal verification, this paper
+proposes a dual-objective neuro-symbolic pipeline and architecture.
 
-Key contributions include:
-\begin{itemize}
-    \item Contribution 1
-    \item Contribution 2
-    \item Contribution 3
-\end{itemize}
+First, we formalize a "Syntax Oracle" as a deterministic, abstract machine.
+The Syntax Oracle acts as a strict runtime
+failsafe, continuously maintaining the expected generation state. It applies
+dynamic logit masking only when the neural model deviates from valid
+specification paths, thereby guaranteeing at least 100\% formal structural
+complicance.
 
-The results demonstrate ...
+Second, to maximize the model's efficacy and minimize use of the Syntax Oracle,
+we introduce a semantic internalization pipeline. By utilizing the Syntax Oracle
+offline to procedurally generate synthetic data enriched with reasoning traces,
+we can apply Low-Rank Adaptation (LoRA) via Supervised Fine-Tuning. This would,
+in turn, train the LLM to natively internalize the underlying context-sensitive
+logic, rather than merely memorizing structural distributions.
+
+Finally, the efficacy of the system is evaluated using a novel,
+entropy-normalized "Complexity-Adjusted Mask Intervention Rate", alongside
+standard latency and throughput benchmarks. Ultimately, this dual-approach aims
+to demonstrate that parameter-efficient fine-tuning on structural reasoning can
+drastically reduce a model's reliance on deterministic fallbacks, providing a
+scalable, low-latency framework for deploying fully verified and correct LLMs.
