@@ -106,7 +106,7 @@
         formatter = pkgs.nixfmt-tree;
 
         packages = {
-          template = buildTex ./template;
+          empty = buildTex ./empty;
           proposal = buildTex ./proposal;
           ieee = buildTex ./ieee;
         };
