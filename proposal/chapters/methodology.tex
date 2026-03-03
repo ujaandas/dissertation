@@ -1,20 +1,19 @@
 \section{Methodology}
 
-\subsection{Mathematical Formulation}
-We define the objective function:
+% Formal definition of oracle, explanation of state-tracking mechanism for
+% context-sensitive constrains, cross-field dependency graphs, etc...
+\subsection{The Syntax Oracle}
 
-\begin{equation}
-J(\theta) = \sum_{i=1}^{n} (y_i - f(x_i; \theta))^2
-\end{equation}
+% How do we perform logit masking? Projecting logit vector onto admissable
+% subspace that our oracle state holds. Maybe discuss performance and
+% optimization of masking loop to minimize overhead
+\subsection{Dynamic Logit Masking}
 
-\subsection{Proposed Algorithm}
-\begin{algorithm}[H]
-\caption{Gradient Descent}
-\begin{algorithmic}
-\STATE Initialize $\theta$
-\FOR{each iteration}
-    \STATE Compute gradient
-    \STATE Update parameters
-\ENDFOR
-\end{algorithmic}
-\end{algorithm}
+% Describe process of using oracle to "teach" and generate good trajectories
+% throughout state space to neural model. How do we select rank and alpha, as
+% well as building a casual language modelling objective for during adaptation
+\subsection{Semantic Internalization Pipeline}
+
+% Summarize architecture, failsafe vs "guess" or intuition, how LoRA reduces
+% search space for oracle, "compiler prediction model"
+\subsection{Summary}
