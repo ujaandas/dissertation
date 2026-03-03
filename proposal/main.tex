@@ -5,30 +5,19 @@
 
 \begin{document}
 
-% Frontmatter
-\pagenumbering{roman}
+\pagenumbering{arabic}
 
+% Frontmatter
 \input{frontmatter/title}
 \input{frontmatter/abstract}
 
-% \tableofcontents
-% \listoffigures
-% \listoftables
-
-\clearpage
-\pagenumbering{arabic}
-
 % Chapters
-\include{chapters/introduction}
-\include{chapters/methodology}
+\input{chapters/introduction}
+\input{chapters/methodology}
 
 % Bibliography
+\clearpage
 \bibliographystyle{styles/IEEEtran}
 \bibliography{references}
-
-% Appendices
-% \clearpage
-% \appendix
-% \include{appendices/appendixA}
 
 \end{document}
