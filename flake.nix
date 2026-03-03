@@ -105,6 +105,17 @@
       {
         formatter = pkgs.nixfmt-tree;
 
+        apps.watchdog = {
+          type = "app";
+          program = "${pkgs.writeShellScript "watchdog" ''
+            target="''${1:-proposal}"
+            exec ${pkgs.watchexec}/bin/watchexec \
+              --exts tex,bib,cls,sty \
+              --watch . \
+              -- nix build .#"$target"
+          ''}";
+        };
+
         packages = {
           empty = buildTex ./empty;
           proposal = buildTex ./proposal;
