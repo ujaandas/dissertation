@@ -1,37 +1,32 @@
 \begin{abstract}
-Large Language Models (LLMs) are being increasingly deployed to safety-critical
-and enterprise domains to generated structured data, yet they natively struggle
-to adhere to complex, context-sensitive operational semantics. While existing
-constrained decoding techniques successfully enforce context-free grammars using
-Finite State Machines, they fail to guarantee richly typed semantic invariants
-without incurring some large or otherwise prohibitive inference latencies. To bridge this
-gap between probabilistic generation and strict formal verification, this paper
-proposes a dual-objective neuro-symbolic pipeline and architecture.
 
-First, we formalize a "Syntax Oracle" as a deterministic, abstract machine.
-The Syntax Oracle acts as a strict runtime
-failsafe, continuously maintaining the expected generation state. It applies
-dynamic logit masking only when the neural model deviates from valid
-specification paths, thereby guaranteeing at least 100\% formal structural
-complicance.
+  Large Language Models (LLMs) are increasingly deployed in safety-critical
+  domains to generate structured outputs, but they struggle to satisfy complex,
+  context-sensitive semantic invariants. While constrained decoding can enforce
+  context-freee grammars, it cannot guarantee richer typed or state-dependent
+  constraints without incurring large inference overheads.
+  We propose a dual-objective neuro-symbolic framework that integrates 
+  runtime formal verification with structural fine-tuning. A deterministic
+  \textit{Syntax Oracle}, an abstract verification machine, will maintain 
+  specification state during decoding, and projects invalid proposals onto the
+  admissable constraint spaec via dynamic logit masking. This mechanism provides
+  formal structural guarantees, while acting only as a minimal-intervention
+  safety controller.
+  In parallel, we introduce a semantic internalization pipeline using
+  parameter-efficient fine-tuning with Low-Rank Adaptation (LoRA), training the
+  LLM to internalize structural invariants and thereby reduce reliance on
+  deterministic correction.
+  We evaluate the framework using an entropy-normalized Oracle Intervention
+  Rate, alongside latency and throughput benchmarks. This approach aims to
+  provide formally-verified, low-latency structured generation, while
+  quantifying the trade-off between learned structural competence and runtime
+  intervention.
 
-Second, to maximize the model's efficacy and minimize use of the Syntax Oracle,
-we introduce a semantic internalization pipeline. By utilizing the Syntax Oracle
-offline to procedurally generate synthetic data enriched with reasoning traces,
-we can apply Low-Rank Adaptation (LoRA) via Supervised Fine-Tuning. This would,
-in turn, train the LLM to natively internalize the underlying context-sensitive
-logic, rather than merely memorizing structural distributions.
-
-Finally, the efficacy of the system is evaluated using a novel,
-entropy-normalized "Complexity-Adjusted Mask Intervention Rate", alongside
-standard latency and throughput benchmarks. Ultimately, this dual-approach aims
-to demonstrate that parameter-efficient fine-tuning on structural reasoning can
-drastically reduce a model's reliance on deterministic fallbacks, providing a
-scalable, low-latency framework for deploying fully verified and correct LLMs.
 \end{abstract}
 
 \begin{IEEEkeywords}
-component, formatting, style, styling, insert.
+  Neural networks, Language models, Formal verification, Runtime verification,
+  Programming languages
 \end{IEEEkeywords}
 
 
