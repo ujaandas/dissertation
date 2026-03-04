@@ -1,14 +1,157 @@
 \section{Background \& Related Work}
+Naturally, the pursuit of structured generated outputs has two distinct branches
+or "paradigms" to approach the problem: inference-time constraint decoding or
+training-time weight alignment. Thus, we must analyze any computational
+trade-offs in these approaches, and identify the critical latency-verification
+gaps that necessitate a dual-objective framework like this to begin with.
 
 % Review FSM based masking (outlines, JSON schemas, etc...)
-\subsection{Constrained Decoding Mechanisms}
+  \subsection{Inference-Time Constraint Mechanisms}
+  As aforementioned, the standard method for enforcing structural validity relies
+  on projecting the generative vocabulary onto a formal grammar during the
+  decoding step in the transformer. Frameworks such as Outlines~\cite{} and
+  LMQL~\cite{} utilize Finite State Machines (FSMs) to compute a boolean mask over
+  the vocabulary space $V$ at each timestep $t$. By mapping invalid token
+  probabilities to $-\infty$, these systems can guarantee adherence to
+  Context-Free Grammars (CFGs), such as standard JSON syntax, with negliglbe
+  latency overhead (roughly $O(1)$ per token).
 
-% Existing neuro-symbolic hybrids, tradeoff between guaranteed correctness and
-% inference latency
-\subsection{Formal Verification in Generative Models}
+  However, the memoryless nature of FSM-based decoding renders it fundamentally
+  incapable of enforcing Context-Sensitive Invariants (CSIs). Complex
+  domain-specific languages (DSLs) and API schemas frequently demand cross-field
+  arithmetic bounds, dynamic type resolution, or referential integrity (e.g.,
+  referencing a dynamically instantiated variable in a subsequent payload block).
+  By using an FSM, this means that these checks must be done \textit{post-hoc},
+  where inadherence or malformed outputs would demand regeneration, and therefore
+  significantly increase system latency. Additionally, attempting to model such
+  state-dependent logic within regular languages like the aforementioned would of
+  course result in a combinatorial state-space explosion, breaking the $O(1)$
+  latency guarantee, and rendering standard FSM masking computationally impossible
+  for any degree of richly typed semantics.
 
-% How does LoRA work and is it really efficient?
-\subsection{Parameter-Efficient Fine-Tuning (PEFT)}
+  Consequently, any viable formal verification framework must completely decouple 
+  the enforcement of CFGs from CSIs, such as to avoid the combinatorial
+  state-space explosion of modeling semantics within regular languages. 
 
-% Summarize and show how this research addresses some gap
-\subsection{Summary}
+  \subsection{Semantic-Aware Decoding}
+  To enforce true operational semantics, recent literature has explored
+  integrating target-side abstract machines directly into the generation loop.
+
+  Scholak et al.~\cite{} introduced PICARD, which operates by parsing the top-$k$
+  beams into Abstract Syntax Trees (ASTs) during decoding, and then actively
+  bruning branches that violate database schemas. While this approach elevates the
+  constraint boundary from syntax to semantics, it introduces a severe inference
+  bottleneck. Because the core neural model remains oblivious to the underlying
+  constraints, it still frequently proposes invalid distributions, and like
+  mentioned above, can force the system into continuous, expensive rejection
+  sampling.
+
+  Similarly, Syncromesh~\cite{} employs Completion Engines (similar to above,
+  performs constrained decoding, filtering and prefix validation) that query an
+  external abstract machine to compute the exact admissible constraint space at
+  every step. While mathematically sound, once again, the continuous token-level
+  interaction between the Python-based neural model/inference loop and the
+  symbolic state-tracker introduces significant overhead. Additionally, it lacks a
+  decoding mechanisms that achieves the formal rigor of AST-verification without
+  significantly degrading system throughput.
+
+  To enforce these deferred semantics without falling into the latency traps of
+  continuous token-level evaluation, significant optimization methods would be
+  required. For instance, Kogler et al.~\cite{} decouples the verification
+  process, by delegating deep semantic verification to discrete structural
+  boundaries (element-level AST nodes), where if a completed element violates
+  the CSI, the system triggers a speculative KV-cache rollback. This approach
+  would allow the system to maintain the formal rigor of an abstract machine,
+  while minimizing synchronization overhead.
+
+  % How does LoRA work and is it really efficient?
+  \subsection{Parameter-Efficient Fine-Tuning (PEFT)}
+  As mentioned earlier, parallel to decoding research, efforts have also been
+  focused on permanently shifting the model's predictive density ($P_\theta(Y|X)$)
+  towards the target DSL.
+
+  Patil et al~\cite{} demonstrated with Gorilla that Supervised Fine-Tuning (SFT)
+  over API call traces can drastically reduce structural hallucination rates.
+  Furthermore, Low-Rank Adaptation (LoRA))~\cite{} has been proven to be highly
+  effective for this task. By freezing the pre-trained weights and injecting
+  trainable rank decomposition matrices, LoRA allows models to internalize the
+  rigid structural patterns of specific DSLs with minimal computational
+  expenditure.
+
+  However, purely neural approaches can suffer from stochastic decay---as even if  
+  SFT could push a model to 99\% accuracy, the inherent probabilistic nature of
+  transformers precludes truly formal guarantees. In safety-critical
+  infrastructure, a 1\% failure rate constitutes a catastrophic system
+  vulnerability. Attempting to close this gap using Reinforcement Learning (e.g.,
+  CodeRL~\cite{}) has proven to be somewhat unstable, as strict operational
+  semantics present a sparse, binary reward landscape that induces mode collapse
+  during policy optimization. A potential solution might be to introduce richer
+  end and transition states into training, such as to break out of the binary
+  reward landscape.
+
+  Ultimately, PEFT must be trated as an optimization mechanism rather than a
+  standalone solution.
+
+  % Approaches combining both?
+  \subsection{Dual-Objective Architectures}
+  Additionally, many advanced efforts to guarantee structural and semantic
+  correctness attempt to unify neural predictive models with symbolic engines,
+  effectively combining training-time alignment with inference-time verification,
+  much more similar to what this paper sets out to do.
+
+  AlphaGeometry~\cite{} couples a neural language model trained on millions of
+  synthetic traces with a deterministic symbolic deduction engine. Similarly,
+  frameworks such as Llema~\cite{} and Draft, Sketch and Prove~\cite{} fine-tune
+  LLMs on highly structured mathematical datasets and interface them with formal
+  interactive theorem provers, such as Lean or Coq.
+
+  In these architectures, the neural model acts as a heuristic prior, navigating
+  the combinatorial explosion of the search space, while the symbolic engine acts
+  as the "oracle" of semantic truth. Furthermore, execution-guided synthesis
+  frameworks like Jigsaw~\cite{} and Toolformer~\cite{} explicitly train the
+  language model to anticipate the requirements of external verification APIs or
+  compilers, thereby reducing the frequency of hallucinated, invalid proposals.
+
+  Now, while these architectures successfully leveral neural training to aid
+  symbolic verification, they consistently architect the interface between the two
+  as an iterative, post-hoc communication loop rather than a deeply integrated
+  decoding mechanism. In systems like the aforementioned AlphaGeometry or Llema,
+  the LLM generates a complete candidate sequence, halts, and passes the payload
+  to the symbolic engine for evaluation. Then, if the engine detects a semantic
+  violation, it returns an error trace, and the LLM must condition on this error
+  to regenerate~\cite{}.
+
+  This macro-level propose-and-verify loop introduces three fatal flaws:
+  \begin{itemize}
+  \item Latency: The hand-offs between the GPU-bound neural model and CPU-bound
+  symbolic verifier destroys inference speeds.
+  \item Redundant compute: The LLM wastes massive computational cycles generate
+  complete subtrees of tokens that might have semantic violations very early on,
+  and therefore, the entire output is wrong.
+  \item Lack of quantification: These frameworks fundamentally cannot formally
+  measure how the neural model's policy alignment minimizes the symbolic engine's
+  workload.
+  \end{itemize}
+
+  Another architecture, much closer to our approach, NeSyS~\cite{}, alternates
+  training between a symbolic world model and a neural model, where the symbolic
+  rules directly constrain the LLM's output probability distribution. The neural
+  model is then fine-tuned specifically on trajectories inadequately covered by
+  the rules. Similarly, Kogler et al.~\cite{} proposed a neuro-symbolic
+  framework for DSL generation that integrates LLMs with a token-level syntactic
+  validator and an element-level logical reasoning constraint solver.
+
+  While frameworks like NeSyS demonstrate that symbolic engines can constrain
+  neural outputs, their token-level probability modifications remain susceptible
+  to the "Prefix Completeness Problem". Because the model only evaluates
+  validity at the token boundary, it frequently misses multi-token semantic
+  violations, trapping the transformer in unrecoverable KV-cache states.
+  Conversely, Kogler et al.~\cite{} successfully bypasses this limitation by
+  decoupling the verification process, using token-level syntactic validation
+  alongside element-level logical reasoning.
+
+  However, these frameworks still treat the neural model and constraint solver
+  as static partners. They heavily optimize the inference engine to handle 
+  constraint-solving but accept the computational overhead of the solver as a fixed, 
+  unavoidable tax. They fail to leverage the neural policy to pro-actively
+  bypass the verification bottleneck.
