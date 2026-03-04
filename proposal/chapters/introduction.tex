@@ -3,16 +3,61 @@
 % Discuss rise of LLMs in automated system config/API synthesis
 % Shift from HitL to agentic workflows/AI agents (ie; x402)
 \subsection{Motivation}
-
-yada yada yada \cite{exampleRef}.
+In recent years, the deployment of Large Language Models (LLMs) has transitioned
+from simple, explanatory or otherwise "conversational" interfaces, to highly
+mission-critical integrations with autonomous AI and agentic workflows~\cite{}.
+This shift towards "AI agents" and automated system configuration---exemplified
+by frameworks such as AutoGPT, OpenClaw, and the x402 protocol---is indicative
+of an increasing reliance on these models to synthesize complex API calls and
+cloud infrastructure definitions with minimal human-in-the-loop verification
+~\cite{}. While the transformer architecture~\cite{} has demonstrated
+remarkable fluency in natural language, its application in safety-critical
+structural synthesis remains somewhat dubious. In industry, the move towards
+fully autonomous agents requires that the output not only "looks" like valid
+code, but is also actually \textit{compliant} with the operational state of the
+target system---that is to say, beyond just syntax.
 
 % Boundary between CFG/CSI (context-sensitive invariants)
 % Why does FSM-based decoding fail? State dependent logic needed?
 \subsection{Problem Statement}
+Current methodologies for steering LLM output primarily rely on constrained
+decoding via Finite State Machines (FSMs) or Context-Free Grammars
+(CFGs)~\cite{}. While these techniques effectively \textit{guarantee}
+surface-level syntax (e.g., ensuring a bracket follows a key in a JSON object),
+they are fundamentally incapable of enforcing Context-Sensitive Invariants
+(CSIs).
+
+Naturally, there is an important distinction between pure syntactic validity and
+semantic correctness that modern approaches do not capture. For instance, an FSM
+can ensure a configuration file is "well-formed" JSON, but it cannot verify that
+an assigned IP address is within a previously declared subnet range, or that a
+\texttt{start_date} chronologically precedes an \texttt{end_date}. These are
+state-dependent constraints aligned with Type-1 Chomsky hierarchy
+machines~\cite{}, and are therefore beyond the reach of context-free parsers
+utilized by modern tools such as Outlines or Guidance~\cite{}. As a consequence,
+when LLMs encounter these "semantic walls", they either hallucinate invalid
+state transitions, leading to system-wide failures during execution, or post-hoc
+checks demand another attempt, significantly increasing system latency and
+computation cost.
 
 % Introduce dual-process architecture
 \subsection{Proposed Contributions}
+Thus, this research proposes a dual-process neuro-symbolic framework designed to
+provide formal structural guarantees while maintaining a reasonable inference
+efficiency. The crux of this work is the Syntax Oracle, an abstract verification
+machine that maintains the specification state during the decoding process. By
+projecting invalid neural proposals onto an admissible constraint space via
+dynamic logit masking, the Oracle acts as a deterministic safety controller.
 
-% Quick roadmap
-\subsection{Structure}
+Simultaneously, we introduce a Semantic Internalization Pipeline, where rather
+than relying solely on the Oracle to correct runtime errors, we can utilize it
+as a "teacher" to generate synthetic traces used to train a model for
+prediction. That is to say, we use these traces to fine-tune the LLM using
+Low-Rank Adaptation (LoRA)~\cite{}. 
+
+Additionally, we can quantify the efficacy of this system by evaluating the
+Oracle Intervention Rate (OIR)---a metric to measure the model's learned
+structural competence and ability to reduce reliance on the deterministic
+failsafe oracle by looking at the rate at which the oracle must employ its
+masking. Naturally, other industry-standard benchmarks will also be used.
 
