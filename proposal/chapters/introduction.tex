@@ -5,12 +5,12 @@
 \subsection{Motivation}
 In recent years, the deployment of Large Language Models (LLMs) has transitioned
 from simple, explanatory or otherwise "conversational" interfaces, to highly
-mission-critical integrations with autonomous AI and agentic workflows~\cite{}.
+mission-critical integrations with autonomous AI and agentic workflows~\cite{exampleRef}.
 This shift towards "AI agents" and automated system configuration---exemplified
 by frameworks such as AutoGPT, OpenClaw, and the x402 protocol---is indicative
 of an increasing reliance on these models to synthesize complex API calls and
 cloud infrastructure definitions with minimal human-in-the-loop verification
-~\cite{}. While the transformer architecture~\cite{} has demonstrated
+~\cite{exampleRef}. While the transformer architecture~\cite{exampleRef} has demonstrated
 remarkable fluency in natural language, its application in safety-critical
 structural synthesis remains somewhat dubious. In industry, the move towards
 fully autonomous agents requires that the output not only "looks" like valid
@@ -22,7 +22,7 @@ target system---that is to say, beyond just syntax.
 \subsection{Problem Statement}
 Current methodologies for steering LLM output primarily rely on constrained
 decoding via Finite State Machines (FSMs) or Context-Free Grammars
-(CFGs)~\cite{}. While these techniques effectively \textit{guarantee}
+(CFGs)~\cite{exampleRef}. While these techniques effectively \textit{guarantee}
 surface-level syntax (e.g., ensuring a bracket follows a key in a JSON object),
 they are fundamentally incapable of enforcing Context-Sensitive Invariants
 (CSIs).
@@ -31,10 +31,10 @@ Naturally, there is an important distinction between pure syntactic validity and
 semantic correctness that modern approaches do not capture. For instance, an FSM
 can ensure a configuration file is "well-formed" JSON, but it cannot verify that
 an assigned IP address is within a previously declared subnet range, or that a
-\texttt{start_date} chronologically precedes an \texttt{end_date}. These are
+\texttt{start\_date} chronologically precedes an \texttt{end\_date}. These are
 state-dependent constraints aligned with Type-1 Chomsky hierarchy
-machines~\cite{}, and are therefore beyond the reach of context-free parsers
-utilized by modern tools such as Outlines or Guidance~\cite{}. As a consequence,
+machines~\cite{exampleRef}, and are therefore beyond the reach of context-free parsers
+utilized by modern tools such as Outlines or Guidance~\cite{exampleRef}. As a consequence,
 when LLMs encounter these "semantic walls", they either hallucinate invalid
 state transitions, leading to system-wide failures during execution, or post-hoc
 checks demand another attempt, significantly increasing system latency and
@@ -53,7 +53,7 @@ Simultaneously, we introduce a Semantic Internalization Pipeline, where rather
 than relying solely on the Oracle to correct runtime errors, we can utilize it
 as a "teacher" to generate synthetic traces used to train a model for
 prediction. That is to say, we use these traces to fine-tune the LLM using
-Low-Rank Adaptation (LoRA)~\cite{}. 
+Low-Rank Adaptation (LoRA)~\cite{exampleRef}. 
 
 Additionally, we can quantify the efficacy of this system by evaluating the
 Oracle Intervention Rate (OIR)---a metric to measure the model's learned
