@@ -87,7 +87,7 @@
               runHook preBuild
 
               latexmk -C
-              latexmk -interaction=nonstopmode -pdf -bibtex main.tex
+              latexmk -pdf -bibtex -file-line-error -halt-on-error main.tex
 
               runHook postBuild
             '';
