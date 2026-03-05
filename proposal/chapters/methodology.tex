@@ -6,7 +6,7 @@ enforces both syntactic and semantic constraints during text generation. Second,
 the Oracle is integrated into the inference loop of a large language model (LLM), 
 constraining token generation through dynamic masking and post-hoc semantic 
 validation. Finally, the Oracle is used offline to synthesize training data 
-used to fine-tune the base model through LoRA, enabling 
+used to fine-tune the base model through LoRA~\cite{hu2021lora}, enabling 
 the model to internalize structural constraints.
 
 \subsection{Specification Language and Schema Compilation}
@@ -46,7 +46,8 @@ where:
 \end{itemize}
 
 This FSM encodes the structural constraints of the DSL and ensures that 
-generated sequences remain syntactically valid.
+generated sequences remain syntactically valid, utilizing the efficient guided generation 
+principles established in~\cite{willard2023efficient}.
 
 \subsubsection{Semantic Module}
 To capture cross-field dependencies without incurring exponential state 
@@ -68,7 +69,8 @@ completed DSL elements satisfy the specified invariants.
 \subsection{Integration with Autoregressive Generation}
 The Syntax Oracle is integrated into the inference process of the language 
 model by modifying the generation loop prior to token sampling. Specifically, 
-a custom logits processor intercepts the model's output distribution and 
+a custom logits processor---similar to those utilized in the Transformers library~\cite{wolf2020transformers}--
+intercepts the model's output distribution and 
 applies syntactic constraints. Let
 
 \begin{equation}
@@ -103,9 +105,9 @@ key-value cache to the state preceding the invalid sequence. The model is then
 forced to regenerate the element under additional constraints derived from the 
 failed validation.
 
-This speculative rollback mechanism ensures that generated outputs remain 
-consistent with the specified schema while allowing the model to explore 
-alternative valid continuations.
+This rollback mechanism, inspired by speculative decoding techniques~\cite{leviathan2023fast}, 
+ensures that generated outputs remain consistent with the specified schema while allowing 
+the model to explore alternative valid continuations.
 
 \subsection{Oracle-Guided Model Adaptation}
 While runtime verification guarantees structural validity, repeated rollbacks 
@@ -115,7 +117,7 @@ offline to synthesize a dataset of valid DSL instances.
 Dataset generation is performed using coverage-guided traversal of the 
 dependency graph $G$, ensuring that diverse structural configurations and 
 edge cases are represented. The resulting dataset $D$ is used to fine-tune 
-a pre-trained language model using Low-Rank Adaptation (LoRA).
+a pre-trained language model using Low-Rank Adaptation (LoRA)~\cite{hu2021lora}.
 
 Let the frozen base weight matrix be
 
@@ -151,14 +153,14 @@ constraints, reducing the frequency of runtime corrections during inference.
 
 \subsection{Implementation Details}
 The prototype system will be implemented using a hybrid Python/C++ architecture. 
-The language model and training pipeline will be developed in Python using the PyTorch 
+The language model and training pipeline will be developed in Python using the PyTorch~\cite{paszke2019pytorch} 
 framework and the HuggingFace Transformers library. The Syntax Oracle and Schema Compiler 
 will be implemented in C++ to enable efficient finite-state execution and low-latency 
 constraint evaluation. Interoperability between the neural inference engine and the Oracle 
-will be achieved using \texttt{pybind11}, allowing direct access to tensors and enabling 
+will be achieved using \texttt{pybind11}~\cite{jakob2024pybind11}, allowing direct access to tensors and enabling 
 modification of model logits during generation.
 
-Experiments will be conducted using an open-weight transformer model (e.g., LLaMA-class models) 
+Experiments will be conducted using an open-weight transformer model (e.g., LLaMA-class models~\cite{grattafiori2024llama}) 
 deployed on GPU hardware. All components of the system, including schema specifications, 
 generated datasets, and training configurations, will be version-controlled to 
 ensure reproducibility.
