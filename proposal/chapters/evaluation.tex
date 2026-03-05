@@ -1,25 +1,73 @@
-\section{Experimental Design \& Evaluation}
+\section{Evaluation}
 
-% What is our target schema? Kubernetes YAML? OpenAPI JSON? etc...
+The evaluation aims to measure both the correctness and
+computational efficiency of the proposed neuro-symbolic decoding
+architecture. In particular, the experiments evaluate how effectively the
+Syntax Oracle reduces structural and semantic errors during generation while
+minimizing runtime interventions.
+
 \subsection{Target Domain}
+All experiments will focus on structured JSON generation governed by
+a specification language with CSI annotations to form our abstract machine.
+These annotations express cross-field constraints such as arithmetic relationships (e.g.,
+\texttt{max\_items} $\geq$ \texttt{min\_items}), conditional dependencies,
+and referential integrity between identifiers.
 
-% How do we evaluate "correctness" in this context?
+Evaluation datasets will consist of natural language prompts paired with
+target JSON outputs. Samples will be drawn from both Oracle-generated
+synthetic schemas and instruction-conditioned tasks to ensure coverage of
+diverse structural configurations.
+
 \subsection{Performance Metrics}
+System performance will be evaluated using several complementary metrics.
 
-% OIR: Oracle Intervention Rate. Mention this is *entropy-normalized* - the
-% primary measure of learned competence, since the less the oracle intervenes
-% the better
+\begin{enumerate}
+\item Oracle Intervention Rate (OIR).
 
-% Semantic accuracy, *how* correct exactly is our output? Ideally, more than
-% just "right" or "wrong", more info here could let us better train the model
+The primary metric introduced in this work measures how frequently the
+Syntax Oracle must intervene during generation through masking, semantic
+validation failure, or rollback. Lower intervention rates indicate that the
+model has internalized more of the schema constraints.
 
-% Computational overhead, latency (ms/token), throughput benchmarks, look into
-% how other companies test LLM speed
+To normalize for task difficulty, OIR will be entropy-scaled using the
+model's token distribution:
 
-% Compare against unconstrained models, prompt-based structural enforcement, and
-% syntax-only FSM masking
+\begin{equation}
+\text{OIR}*{norm} =
+\frac{\text{Oracle interventions}}
+{\sum*{t=1}^{T} H(p_t)}
+\end{equation}
+
+\item Semantic Validity Rate.
+
+The proportion of generated outputs that satisfy all schema constraints when
+validated by the Oracle.
+
+\item Inference Efficiency.
+
+Computational overhead will be measured using standard LLM performance
+benchmarks, including decoding latency (ms/token) and generation throughput
+(tokens/second).
+\end{enumerate}
+
+\subsection{Constraint Complexity Scaling}
+To evaluate scalability, experiments will vary schema complexity by
+increasing the number of fields, semantic constraints, and dependency depth.
+Oracle Intervention Rate and decoding latency will be measured across these
+levels in order to quantify how constraint density affects both neural
+prediction behavior and verification workload.
+
 \subsection{Baseline Comparisons}
+The proposed system will be compared against several baseline approaches:
 
-% Hardware/software environment? Eh only if I really need th word count... Talk
-% about Nix? :D
-% \subsection{Development}
+\begin{itemize}
+\item unconstrained autoregressive generation
+\item prompt-based schema enforcement
+\item syntax-only FSM masking
+\item LoRA fine-tuning without runtime verification
+\end{itemize}
+
+These baselines represent the dominant strategies for structured generation.
+Additional ablation experiments will isolate the contribution of syntactic
+masking, semantic rollback, and Oracle-guided training within the proposed
+framework.
