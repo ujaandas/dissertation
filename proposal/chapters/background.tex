@@ -9,8 +9,8 @@ gaps that necessitate a dual-objective framework like this.
   \subsection{Inference-Time Constraint Mechanisms}
   As aforementioned, the standard method for enforcing structural validity relies
   on projecting the generative vocabulary onto a formal grammar during the
-  decoding step in the transformer. Frameworks such as Outlines~\cite{} and
-  LMQL~\cite{} utilize Finite State Machines (FSMs) to compute a boolean mask over
+  decoding step in the transformer. Frameworks such as Outlines~\cite{willard2023efficient} and
+  LMQL~\cite{beurer2023prompting} utilize Finite State Machines (FSMs) to compute a boolean mask over
   the vocabulary space $V$ at each timestep $t$. By mapping invalid token
   probabilities to $-\infty$, these systems can guarantee adherence to
   Context-Free Grammars (CFGs), such as standard JSON syntax, with negligible
@@ -34,19 +34,19 @@ gaps that necessitate a dual-objective framework like this.
   To enforce operational semantics, recent literature has explored integrating
   symbolic validation directly into the decoding process.
 
-  Scholak et al.~\cite{} introduced PICARD, which parses the top-$k$ beams into
+  PICARD~\cite{scholak2021picard}, which parses the top-$k$ beams into
   Abstract Syntax Trees (ASTs) during decoding and prunes candidates that violate
   database schemas. While this elevates constraint enforcement from syntax to
   semantics, the neural model itself remains unaware of these constraints and
   therefore frequently proposes invalid distributions, forcing the system into
   repeated rejection cycles.
 
-  Similarly, Syncromesh~\cite{} employs completion engines that query an external
+  Similarly, Syncromesh~\cite{poesia2022synchromesh} employs completion engines that query an external
   abstract machine to compute admissible continuations during generation. While
   mathematically rigorous, the continuous token-level interaction between the
   neural decoder and symbolic state tracker introduces significant overhead.
 
-  To mitigate these costs, Kogler et al.~\cite{} decouple semantic verification
+  To mitigate these costs, Kogler et al.~\cite{kogler2026towards} decouple semantic verification
   from token-level decoding by delegating constraint evaluation to discrete
   structural boundaries. When a completed element violates a constraint, the
   system performs a speculative KV-cache rollback and regenerates the element.
@@ -59,9 +59,9 @@ gaps that necessitate a dual-objective framework like this.
   model's predictive density ($P_\theta(Y|X)$) towards a target DSL through
   training-time alignment.
 
-  Patil et al.~\cite{} demonstrated with Gorilla that Supervised Fine-Tuning (SFT)
+  Gorilla~\cite{patil2024gorilla}, an LLM connected with massive APIs, demonstrated that Supervised Fine-Tuning (SFT)
   over API call traces can drastically reduce structural hallucination rates.
-  Furthermore, Low-Rank Adaptation (LoRA)~\cite{} has proven highly effective for
+  Furthermore, Low-Rank Adaptation (LoRA)~\cite{hu2022lora} has proven highly effective for
   this task. By freezing pre-trained weights and injecting trainable low-rank
   update matrices, LoRA enables models to internalize the structural patterns of
   specific DSLs with minimal computational overhead.
@@ -79,17 +79,17 @@ gaps that necessitate a dual-objective framework like this.
   reasoning engines, combining training-time alignment with inference-time
   verification.
 
-  AlphaGeometry~\cite{} couples a neural language model trained on synthetic
+  AlphaGeometry~\cite{trinh2024solving} couples a neural language model trained on synthetic
   reasoning traces with a deterministic symbolic deduction engine. In this
   architecture, the neural model acts as a heuristic prior that navigates the
   combinatorial search space, while the symbolic system provides the ground truth
   of semantic correctness.
 
   However, these systems typically structure the interface between neural and
-  symbolic components as an iterative propose-and-verify loop. The language model
+  symbolic components as an iterative propose-and-verify loop~\cite{jiang2022draft}. The language model
   generates a complete candidate sequence, which is then passed to a symbolic
   engine for evaluation. If a violation is detected, the engine returns an error
-  trace and the model must regenerate the output~\cite{}.
+  trace and the model must regenerate the output~\cite{jiang2022draft}.
 
   This macro-level architecture introduces three key limitations:
   \begin{itemize}
@@ -101,10 +101,10 @@ gaps that necessitate a dual-objective framework like this.
   policy alignment reduces the symbolic engine's workload.
   \end{itemize}
 
-  A closely related approach, NeSyS~\cite{}, alternates training between a
+  A closely related approach, NeSyS~\cite{zhao2026neuro}, alternates training between a
   symbolic world model and a neural generator, allowing symbolic rules to
   constrain the model's output probability distribution. Similarly, Kogler
-  et al.~\cite{} proposed a neuro-symbolic DSL generation framework that combines
+  et al.~\cite{kogler2026towards} proposed a neuro-symbolic DSL generation framework that combines
   token-level syntactic validation with an element-level logical reasoning
   constraint solver.
 
