@@ -3,7 +3,7 @@ The overall system operates as a compilation and inference pipeline. First, an
 annotated DSL specification is compiled into a 
 verification structure referred to as the Syntax Oracle. The Oracle 
 enforces both syntactic and semantic constraints during text generation. Second, 
-the Oracle is integrated into the inference loop of a large language model (LLM), 
+the Oracle is integrated into the inference loop of an LLM, 
 constraining token generation through dynamic masking and post-hoc semantic 
 validation. Finally, the Oracle is used offline to synthesize training data 
 used to fine-tune the base model through LoRA~\cite{hu2021lora}, enabling 
@@ -29,7 +29,7 @@ evaluates semantic constraints.
 
 \subsubsection{Syntactic Module}
 The syntactic component $M_{\text{syn}}$ is constructed by translating the 
-schema's context-free grammar into a deterministic finite-state machine (FSM):
+schema's CFG into a deterministic FSM:
 
 \begin{equation}
 M_{\text{syn}} = (Q, \Sigma, \delta, q_0, F)

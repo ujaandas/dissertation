@@ -10,33 +10,31 @@ tasks.
 
 \begin{enumerate}
 
-\item \textbf{Task 1: Infrastructure and Environment Provisioning}
+\item \textbf{Infrastructure and Environment Provisioning}
 
 \textbf{Objectives:} Establish a deterministic, hardware-agnostic execution environment.
 
 \textbf{Tasks:}
 \begin{itemize}
-\item Containerize the development stack using Docker and Nix.
 \item Deploy the base open-weights model (e.g., Llama-3-8B) on the target GPU 
 infrastructure utilizing the vLLM serving engine.
 \item Establish baseline latency metrics for unconstrained generation.
 \end{itemize}
 
-\item \textbf{Task 2: Schema Compiler and Syntax Oracle Engineering}
+\item \textbf{Schema Compiler and Syntax Oracle Engineering}
 
 \textbf{Objectives:} Develop the C++ backend for the symbolic constraint engine.
 
 \textbf{Tasks:}
 \begin{itemize}
-\item Construct the Schema Compiler to parse annotated JSON Schemas.
-\item Implement the Finite State Machine (FSM) generator for the Context-Free 
-Grammar (CFG) mask.
+\item Construct the Schema Compiler to parse the specification language for JSON Schemas.
+\item Implement the FSM generator for the CFG mask.
 \item Develop the topological-sort engine for evaluating the Cross-Field 
 Dependency Graph ($G$).
-\item Compile the \texttt{pybind11} bridges.
+\item Compile the \texttt{pybind11} bridges and verify inter-operatability.
 \end{itemize}
 
-\item \textbf{Task 3: Cascaded Verification and KV-Cache Rollback}
+\item \textbf{Cascaded Verification and Cache Rollback Mechanism}
 
 \textbf{Objectives:} Integrate the Syntax Oracle into the autoregressive decoding loop.
 
@@ -44,11 +42,11 @@ Dependency Graph ($G$).
 \begin{itemize}
 \item Subclass the \texttt{LogitsProcessor} to inject the token-level $O(1)$ FSM mask.
 \item Implement the element-level trigger hooks.
-\item Engineer the speculative KV-cache rollback mechanism to 
+\item Engineer the speculative cache rollback mechanism to 
 truncate and regenerate upon Context-Sensitive Invariant (CSI) violations.
 \end{itemize}
 
-\item \textbf{Task 4: Data Synthesis and Semantic Internalization}
+\item \textbf{Data Synthesis and Semantic Internalization}
 
 \textbf{Objectives:} Align the neural policy to the target Domain-Specific Language (DSL).
 
@@ -60,7 +58,7 @@ synthesizing a mathematically perfect dataset $D$.
 Adaptation (LoRA) with optimized rank capacity ($r=16, \alpha=32$).
 \end{itemize}
 
-\item \textbf{Task 5: Evaluation, Benchmarking, and Writing}
+\item \textbf{Evaluation, Benchmarking, and Writing}
 
 \textbf{Objectives:} Quantify the architectural synergy and draft the final dissertation.
 
@@ -74,12 +72,32 @@ across unaligned versus LoRA-aligned models.
 \end{enumerate}
 
 \subsection{Project Constraints}
-To remain feasible, the framework will be evaluated against a singular, 
-highly restricted subset of a production DSL (e.g., OpenAPI configuration). The 
-compiler will support a targeted 
-list of semantic annotations (e.g., arithmetic bounds, referential equality) 
-rather than Turing-complete logic.
+To ensure the feasibility and scientific reproducibility of the framework, several boundary conditions are established:
 
-The training phase is computationally bounded by available GPU VRAM. 
-The use of PEFT (LoRA) specifically mitigates this constraint, allowing 
-adaptation to occur on a single consumer-grade or via standard university SLURM tasks.
+\begin{itemize}
+    \item  
+    The framework will be evaluated against a restricted subset of a production DSL 
+    (e.g., OpenAPI 3.0).
+
+    \item  
+    The training phase is computationally bounded by available GPU VRAM. 
+    The use of PEFT (LoRA)~\cite{hu2021lora} specifically mitigates this 
+    constraint, allowing adaptation to occur on a single consumer-grade 
+    GPU or via standard university-provisioned SLURM clusters.
+
+    \item  The Syntax Oracle is strictly coupled to the specific Byte-Pair Encoding 
+    (BPE) vocabulary of the base model (e.g., Llama-3). 
+    Any modification to the model's tokenizer requires a full recompilation of 
+    the FSM transition table.
+    
+    \item  
+    To maintain deterministic performance, the Semantic Evaluator is 
+    constrained to \textit{local state invariants} present within the 
+    current generation context. Verification against external, asynchronous 
+    data sources (e.g., live database lookups) is outside the current research scope.
+
+    \item  The speculative rollback mechanism is limited by the transformer's 
+    effective context window. To prevent infinite loops 
+    or "generation deadlocks," the system will impose a maximum retry threshold 
+    for any single DSL element.
+\end{itemize}

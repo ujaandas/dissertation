@@ -10,10 +10,10 @@ gaps that necessitate a dual-objective framework like this.
   As aforementioned, the standard method for enforcing structural validity relies
   on projecting the generative vocabulary onto a formal grammar during the
   decoding step in the transformer. Frameworks such as Outlines~\cite{willard2023efficient} and
-  LMQL~\cite{beurer2023prompting} utilize Finite State Machines (FSMs) to compute a boolean mask over
+  LMQL~\cite{beurer2023prompting} utilize FSMs to compute a boolean mask over
   the vocabulary space $V$ at each timestep $t$. By mapping invalid token
   probabilities to $-\infty$, these systems can guarantee adherence to
-  Context-Free Grammars (CFGs), such as standard JSON syntax, with negligible
+  CFGs, such as standard JSON syntax, with negligible
   latency overhead.
 
   However, the memoryless nature of FSM-based decoding renders it fundamentally
@@ -34,7 +34,7 @@ gaps that necessitate a dual-objective framework like this.
   To enforce operational semantics, recent literature has explored integrating
   symbolic validation directly into the decoding process.
 
-  PICARD~\cite{scholak2021picard}, which parses the top-$k$ beams into
+  PICARD~\cite{scholak2021picard}, for instance, parses the top-$k$ beams into
   Abstract Syntax Trees (ASTs) during decoding and prunes candidates that violate
   database schemas. While this elevates constraint enforcement from syntax to
   semantics, the neural model itself remains unaware of these constraints and
@@ -44,12 +44,12 @@ gaps that necessitate a dual-objective framework like this.
   Similarly, Syncromesh~\cite{poesia2022synchromesh} employs completion engines that query an external
   abstract machine to compute admissible continuations during generation. While
   mathematically rigorous, the continuous token-level interaction between the
-  neural decoder and symbolic state tracker introduces significant overhead.
+  neural decoder and external symbolic state tracker introduces significant overhead.
 
   To mitigate these costs, Kogler et al.~\cite{kogler2026towards} decouple semantic verification
   from token-level decoding by delegating constraint evaluation to discrete
   structural boundaries. When a completed element violates a constraint, the
-  system performs a speculative KV-cache rollback and regenerates the element.
+  system performs a rollback and regenerates the element.
   This strategy preserves the rigor of symbolic validation while minimizing
   synchronization overhead.
 
@@ -75,7 +75,7 @@ gaps that necessitate a dual-objective framework like this.
 
   % Approaches combining both?
   \subsection{Dual-Objective Architectures}
-  Several recent systems attempt to unify neural predictive models with symbolic
+  Finally, several recent systems attempt to unify neural predictive models with symbolic
   reasoning engines, combining training-time alignment with inference-time
   verification.
 
