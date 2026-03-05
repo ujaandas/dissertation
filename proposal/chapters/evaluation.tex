@@ -14,7 +14,8 @@ These annotations express cross-field constraints such as arithmetic relationshi
 and referential integrity between identifiers.
 
 Evaluation datasets will consist of natural language prompts paired with
-target JSON outputs. Samples will be drawn from both Oracle-generated
+target JSON outputs, drawing from benchmarks such as BIRD~\cite{li2023can} for relational 
+complexity and specialized schema-following tasks. Samples will be drawn from both Oracle-generated
 synthetic schemas and instruction-conditioned tasks to ensure coverage of
 diverse structural configurations.
 
@@ -29,8 +30,9 @@ Syntax Oracle must intervene during generation through masking, semantic
 validation failure, or rollback. Lower intervention rates indicate that the
 model has internalized more of the schema constraints.
 
-To normalize for task difficulty, OIR will be entropy-scaled using the
-model's token distribution:
+To normalize for task difficulty, OIR will be entropy-scaled using the model's 
+token distribution $H(p_t)$, a technique adapted from predictive coding 
+metrics:
 
 \begin{equation}
 \text{OIR}*{norm} =
@@ -41,21 +43,25 @@ model's token distribution:
 \item Semantic Validity Rate.
 
 The proportion of generated outputs that satisfy all schema constraints when
-validated by the Oracle.
+validated by the Oracle, similar to the "Pass@k" metric used in code generation 
+benchmarks~\cite{chen2021evaluating}.
 
 \item Inference Efficiency.
 
 Computational overhead will be measured using standard LLM performance
-benchmarks, including decoding latency (ms/token) and generation throughput
-(tokens/second).
+benchmarks, including decoding latency (ms/token) and generation throughput 
+(tokens/second), utilizing the benchmarking methodology defined 
+in~\cite{miao2024specinfer}.
+
 \end{enumerate}
 
 \subsection{Constraint Complexity Scaling}
 To evaluate scalability, experiments will vary schema complexity by
 increasing the number of fields, semantic constraints, and dependency depth.
-Oracle Intervention Rate and decoding latency will be measured across these
-levels in order to quantify how constraint density affects both neural
-prediction behavior and verification workload.
+We will specifically analyze the "Semantic Wall" phenomenon 
+identified in~\cite{valmeekam2023planning}, quantifying how 
+constraint density affects both neural prediction behavior and 
+verification workload.
 
 \subsection{Baseline Comparisons}
 The proposed system will be compared against several baseline approaches:
