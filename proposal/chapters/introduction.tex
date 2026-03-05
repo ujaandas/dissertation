@@ -41,22 +41,7 @@ cost.
 
 % Introduce dual-process architecture
 \subsection{Proposed Contributions}
-Thus, this research proposes a dual-process neuro-symbolic framework designed to
-provide formal structural guarantees while maintaining a reasonable inference
-efficiency. The crux of this work is the Syntax Oracle, an abstract verification
-machine that maintains the specification state during the decoding process. By
-projecting invalid neural proposals onto an admissible constraint space via
-dynamic logit masking, the Oracle acts as a deterministic safety controller.
-
-Simultaneously, we introduce a Semantic Internalization Pipeline, where rather
-than relying solely on the Oracle to correct runtime errors, we can utilize it
-as a "teacher" to generate synthetic traces used to train a model for
-prediction. That is to say, we use these traces to fine-tune the LLM using
-Low-Rank Adaptation (LoRA)~\cite{exampleRef}. 
-
-Additionally, we can quantify the efficacy of this system by evaluating the
-Oracle Intervention Rate (OIR)---a metric to measure the model's learned
-structural competence and ability to reduce reliance on the deterministic
-failsafe oracle by looking at the rate at which the oracle must employ its
-masking. Naturally, other industry-standard benchmarks will also be used.
-
+This work proposes a dual-process neuro-symbolic framework in which a schema-specific 
+abstract machine is embedded directly into the LLM's decoding loop to enforce structural
+ and semantic constraints, while Oracle-generated traces are used to fine-tune the model 
+ and reduce its reliance on runtime intervention.
