@@ -24,21 +24,20 @@ Current methodologies for steering LLM output primarily rely on constrained
 decoding via Finite State Machines (FSMs) or Context-Free Grammars
 (CFGs)~\cite{exampleRef}. While these techniques effectively \textit{guarantee}
 surface-level syntax (e.g., ensuring a bracket follows a key in a JSON object),
-they are fundamentally incapable of enforcing Context-Sensitive Invariants
-(CSIs).
+they are fundamentally incapable of enforcing semantic correctness, and any
+errors thereof can only be corrected post-hoc, which is computationally costly.
 
-Naturally, there is an important distinction between pure syntactic validity and
+In other words, there is an important distinction between pure syntactic validity and
 semantic correctness that modern approaches do not capture. For instance, an FSM
 can ensure a configuration file is "well-formed" JSON, but it cannot verify that
 an assigned IP address is within a previously declared subnet range, or that a
 \texttt{start\_date} chronologically precedes an \texttt{end\_date}. These are
-state-dependent constraints aligned with Type-1 Chomsky hierarchy
-machines~\cite{exampleRef}, and are therefore beyond the reach of context-free parsers
+state-dependent constraints and are therefore beyond the reach of context-free parsers
 utilized by modern tools such as Outlines or Guidance~\cite{exampleRef}. As a consequence,
 when LLMs encounter these "semantic walls", they either hallucinate invalid
 state transitions, leading to system-wide failures during execution, or post-hoc
-checks demand another attempt, significantly increasing system latency and
-computation cost.
+checks that demand another prompt, significantly increasing system latency and
+cost.
 
 % Introduce dual-process architecture
 \subsection{Proposed Contributions}
